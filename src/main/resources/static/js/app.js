@@ -51,7 +51,7 @@ const Navbar = React.createClass({
 const Dashboard = React.createClass({
     render: function () {
         return (
-            <h1>Welcome to the Dashboard</h1>
+            <h1 style={{textAlign:"center"}}>Welcome to the Dashboard</h1>
         );
     }
 });
@@ -117,5 +117,5 @@ const Add = React.createClass({
 });
 
 ReactDOM.render(
-    <Main/>, document.getElementById('nav')
+    <Main/>, document.getElementById('root')
 );
