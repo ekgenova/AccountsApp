@@ -14,10 +14,10 @@ public class User {
     private String username;
 
     @Column
-    private String userFirstName;
+    private String firstName;
 
     @Column
-    private String userLastName;
+    private String lastName;
 
     @Column
     private String imgUrl;
@@ -30,12 +30,12 @@ public class User {
         return username;
     }
 
-    public String getUserFirstName() {
-        return userFirstName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getUserLastName() {
-        return userLastName;
+    public String getLastName() {
+        return lastName;
     }
 
     public String getImgUrl() {
@@ -50,32 +50,40 @@ public class User {
         this.username = username;
     }
 
-    public void setUserFirstName(String userFirstName) {
-        this.userFirstName = userFirstName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public void setUserLastName(String userLastName) {
-        this.userLastName = userLastName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
 
-    protected User(){
+    private User(){
 
     }
 
     public User(String userFirstName, String userLastName, String username){
-        this.userFirstName = userFirstName;
-        this.userLastName = userLastName;
+        super();
+        this.userId = userId;
+        this.firstName = userFirstName;
+        this.lastName = userLastName;
         this.username = username;
     }
 
-    public User(String userFirstName, String userLastName, String username, String imgUrl){
-        this.userFirstName = userFirstName;
-        this.userLastName = userLastName;
-        this.username = username;
-        this.imgUrl = imgUrl;
+//    public User(String userFirstName, String userLastName, String username, String imgUrl){
+//        this.userFirstName = userFirstName;
+//        this.userLastName = userLastName;
+//        this.username = username;
+//        this.imgUrl = imgUrl;
+//    }
+
+    @Override
+    public String toString(){
+        return "User{" + "id= " + userId + "username= " + username + ", first name= " + firstName +
+                ", last name= " + lastName + " }";
     }
 }

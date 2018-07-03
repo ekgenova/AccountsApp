@@ -35,7 +35,7 @@ const Navbar = React.createClass({
                             Accounts
                         </a>
                         <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a className="dropdown-item" href="#">View Accounts</a>
+                            <a className="dropdown-item" href="#" onClick={this.ViewAccounts}>View Accounts</a>
                             <div className="dropdown-divider">?</div>
                             <a className="dropdown-item" href="#" onClick={this.AddAccounts}>Add Account</a>
                             <a className="dropdown-item" href="#">Delete Account</a>
@@ -85,16 +85,53 @@ const Add = React.createClass({
             lastName: e.target.value
         })
     },
-    accountNumberChange: function(e) {
+    usernameChange: function(e) {
         this.setState({
-            accountNumber: parseInt(e.target.value)
+            username: e.target.value
         })
+    },
+
+    submit: function(e){
+        e.preventDefault();
+
+        const info = {
+            "firstName": this.state.firstName,
+            "lastName": this.state.lastName,
+            "username": this.state.username
+        };
+
+        e.target.reset();
+
+        const jsonInfo = JSON.stringify(info);
+
+        const settings = {
+            "async":true,
+            "crossDomain":true,
+            "url": "db/add",
+            "method": "POST",
+            "headers": {
+                "content-type": "application/json",
+                "cache-control": "no-cache",
+                "postman-token": "7583589c-5a8a-9fa1-a6c1-cce43c23293d"
+            },
+            "processData": false,
+            "data": jsonInfo
+        };
+
+        $.ajax(settings)
+            .done(function (data) {
+                console.log("Success!")
+            })
+            .fail(function(jqXhr){
+                console.log("info: " + info);
+                console.log("Failed to register!");
+            });
     },
 
     render: function () {
         return (
             <div className="container">
-                <form>
+                <form onSubmit={this.submit}>
                     <div className="form-group">
                         <label htmlFor="inputFName">First Name</label>
                         <input type="text" className="form-control" id="inputFName" placeholder="First name" onChange={this.nameChange} val={this.state.firstName}/>
@@ -104,8 +141,8 @@ const Add = React.createClass({
                         <input type="text" className="form-control" id="inputLName" placeholder="Last name" onChange={this.lastChange} val={this.state.lastName}/>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="inputAccountNum">Account Number</label>
-                        <input type="text" className="form-control" id="inputAccountNumber" placeholder="Account Number" onChange={this.accountNumberChange} val={this.state.accountNumber}/>
+                        <label htmlFor="inputAccountNum">Username</label>
+                        <input type="text" className="form-control" id="inputAccountNumber" placeholder="Username" onChange={this.usernameChange} val={this.state.username}/>
                     </div>
                     <div className="form-group">
                         <button type="submit" className="btn btn-primary">Submit</button>
@@ -115,6 +152,116 @@ const Add = React.createClass({
         );
     }
 });
+
+// let USERS = [
+//     {firstName: 'Ekaterina', lastName: 'Genova', username: 'sasohina'}
+// ];
+
+const View = React.createClass({
+    loadUsersFromServer: function () {
+        const self = this;
+        $.ajax({
+            url: "http://localhost:8080/db/list"
+        }).then(function(data){
+            self.setState({users:data});
+        });
+    },
+
+    getInitialState: function(){
+        return {users: []};
+    },
+
+    componentDidMount: function(){
+        this.loadUsersFromServer();
+    },
+
+    componentWillMount: function(){
+        this.loadUsersFromServer();
+    },
+
+    statics: {
+        update: function(){
+            self.loadUsersFromServer();
+            this.render();
+        }
+    },
+
+    render(){
+        console.log(this.state.users);
+        return ( <UserTable users={this.state.users}/>);
+    }
+
+});
+
+const UserTable = React.createClass({
+    render: function () {
+        var rows = [];
+        this.props.users.forEach(function(user){
+            rows.push(<User user={user}/>);
+        });
+        return (
+            <div className="container">
+                <table className="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Surname</th>
+                        <th>Username</th>
+                    </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
+        );
+    }
+
+});
+
+let User = React.createClass({
+    getInitialState: function(){
+        return {display: true};
+    },
+
+    handleDelete(){
+        const self = this;
+        $.ajax({
+            "url": "http://localhost:8080/db/delete",
+            type: 'DELETE',
+            data: JSON.stringify(self.props.user),
+            "headers": {
+                "content-type": "application/json",
+                "cache-control": "no-cache",
+                "postman-token": "c7bb89b4-2b6c-3cdb-cd22-86fdba25c43c"
+            },
+            "processData": false,
+            success: function(result) {
+                // self.setState({display: false});
+                self.setState({delete: true});
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                toastr.error(xhr.responseJSON.message);
+            }
+        })
+    },
+
+    render: function(){
+        if (!this.state.delete) {
+            return (
+                <tr>
+                    <td>{this.props.user.firstName}</td>
+                    <td>{this.props.user.lastName}</td>
+                    <td>{this.props.user.username}</td>
+                    <td>
+                        <button className="btn btn-danger" onClick={this.handleDelete}>Delete</button>
+                    </td>
+                </tr>
+            );
+        } else {
+            return null;
+        }
+    }
+});
+
 
 ReactDOM.render(
     <Main/>, document.getElementById('root')
