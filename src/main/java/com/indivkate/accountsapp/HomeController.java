@@ -9,7 +9,7 @@ public class HomeController {
 
     @RequestMapping(value = "/")
     public String index() {
-        return "index.html";
+        return "/templates/index.html";
     }
 }
 
