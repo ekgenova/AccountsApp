@@ -50,7 +50,31 @@ const Navbar = React.createClass({
 const Dashboard = React.createClass({
     render: function () {
         return (
-            <h1 style={{textAlign:"center"}}>Welcome to the Dashboard</h1>
+            <div style={{textAlign: "center"}}>
+                <br/>
+                <h1 className="bg-dark text-white">Welcome to the Dashboard</h1>
+                <br/>
+                <h3 className="bg-dark text-white"> How to use this application:</h3>
+                <br/>
+                <h5 className="bg-primary text-white">View Accounts:</h5>
+                <span className="text-body"> To view accounts that have been registered with the system visit:</span>
+                <span className="text-info"> Accounts > View Accounts.</span>
+                <span className="text-body"><br/>A list of all registered accounts will appear and you will be able to edit and delete accounts.</span><br/>
+                <br/>
+                <h5 className="bg-success text-white">Add Accounts:</h5>
+                <span className="text-body">To add an account visit:</span>
+                <span className="text-info"> Accounts > Add Account.</span>
+                <span className="text-body"><br/>From there provide the required information and press <span className="bg-primary text-white">Submit</span></span>
+                <span className="text-body"> <br/>As long as it matches the requirements you will be alerted to the account </span>
+                <span className="text-success">being added successfully.</span>
+                <br/><br/>
+                <h5 className="bg-warning text-white">Edit Accounts:</h5>
+                <span className="text-body">To edit an account press the <span className="bg-warning text-white">Edit</span> button on the account you wish to edit.</span>
+                <span className="text-body">After making the changes needed press <span className="bg-primary text-white">Save</span> and then close the page.</span>
+                <br/><br/>
+                <h5 className="bg-danger text-white">Delete Accounts:</h5>
+                <span className="text-body">To delete an account press the <span className="bg-danger text-white">Delete</span> button on the account you wish to delete.</span>
+            </div>
         );
     }
 });
@@ -119,11 +143,13 @@ const Add = React.createClass({
 
         $.ajax(settings)
             .done(function (info) {
-                console.log("Success!")
+                console.log("Success!");
+                alert("Success!");
             })
             .fail(function(jqXhr){
                 console.log("info: " + info);
                 console.log("Failed to register!");
+                alert("Failed to register!");
             });
     },
 
@@ -133,15 +159,15 @@ const Add = React.createClass({
                 <form onSubmit={this.submit}>
                     <div className="form-group">
                         <label htmlFor="inputFName">First Name</label>
-                        <input type="text" className="form-control" id="inputFName" placeholder="First name" onChange={this.nameChange} val={this.state.firstName}/>
+                        <input type="text" className="form-control" id="inputFName" placeholder="First names: no spaces at start/end, no numbers" onChange={this.nameChange} val={this.state.firstName} required={true} pattern="(([A-z]+\s){0,}([A-z]+))"/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="inputLName">Last Name</label>
-                        <input type="text" className="form-control" id="inputLName" placeholder="Last name" onChange={this.lastChange} val={this.state.lastName}/>
+                        <input type="text" className="form-control" id="inputLName" placeholder="Last names: no spaces at start/end, no numbers" onChange={this.lastChange} val={this.state.lastName} required={true} pattern="(([A-z]+\s){0,}([A-z]+))"/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="inputAccountNum">Username</label>
-                        <input type="text" className="form-control" id="inputAccountNumber" placeholder="Username" onChange={this.usernameChange} val={this.state.username}/>
+                        <input type="text" className="form-control" id="inputUsername" placeholder="Username: only letters/numbers allowed" onChange={this.usernameChange} val={this.state.username} required={true} pattern="[A-z]+\d+"/>
                     </div>
                     <div className="form-group">
                         <button type="submit" className="btn btn-primary">Submit</button>
@@ -193,10 +219,22 @@ const View = React.createClass({
 });
 
 const UserTable = React.createClass({
-    updateSearchLabel: function(e){
-        this.setState({
-            value: e.target.value
-        })
+
+    search: function(){
+        console.log(document.getElementById("search").value);
+        if (document.getElementById("search").value === false){
+            var url="http://localhost:8080/db/list";
+        } else {
+            var url="http://localhost:8080/db/search/all/" + document.getElementById("search").value;
+        }
+        console.log(url);
+        $.ajax({
+            url: url
+        }).then(function(data){
+            data.sort((a,b) => (a.userId) - (b.userId));
+            this.setState({users: data});
+            this.render();
+        });
     },
 
     render: function () {
@@ -211,15 +249,7 @@ const UserTable = React.createClass({
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="input-group">
-                            <div className="input-group-btn">
-                                <button type="button" id="search-button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">SearchBy:</button>
-                                <ul className="dropdown-menu">
-                                    <li><a href="#">First name</a></li>
-                                    <li><a href="#" >Last name</a></li>
-                                    <li><a href="#" >Username</a></li>
-                                </ul>
-                            </div>
-                            <input type="text" className="form-control" aria-label="..."/>
+                            <span className="text-body">Search:</span><input type="text" id="search" className="form-control" aria-label="..." placeholder="not working..." onChange={this.search}/>
                         </div>
                     </div>
                 </div>
@@ -327,7 +357,7 @@ const Modal = React.createClass ({
     render: function () {
         return (
             <div>
-                <button type="button" className="btn btn-primary" data-toggle="modal" data-target={this.state.dataTarget} onClick={this.updateProps}>
+                <button type="button" className="btn btn-warning" data-toggle="modal" data-target={this.state.dataTarget} onClick={this.updateProps}>
                     Edit
                 </button>
             <div className="modal fade" id={this.state.id} tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -425,11 +455,13 @@ const Edit = React.createClass({
 
         $.ajax(settings)
             .done(function(data) {
-                console.log("Success!")
+                console.log("Success!");
+                alert("Edit saved!");
             })
             .fail(function(jqXhr) {
                 console.log("data : " + data );
-                console.log('Failed to register!');
+                console.log('Failed to edit!');
+                alert("Failed to edit!");
             });
     },
 
@@ -439,15 +471,15 @@ const Edit = React.createClass({
                 <form onSubmit={this.submit}>
                     <div className="form-group">
                         <label htmlFor="inputFName">First Name</label>
-                        <input type="text" className="form-control" id="inputFName" placeholder="First name" onChange={this.nameChange} val={this.state.firstName} defaultValue={this.props.user.firstName}/>
+                        <input type="text" className="form-control" id="inputFName" placeholder="First names: no spaces at start/end" onChange={this.nameChange} val={this.state.firstName} defaultValue={this.props.user.firstName} required={true} pattern="(([A-z]+\s){0,}([A-z]+))"/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="inputLName">Last Name</label>
-                        <input type="text" className="form-control" id="inputLName" placeholder="Last name" onChange={this.lastChange} val={this.state.lastName} defaultValue={this.props.user.lastName}/>
+                        <input type="text" className="form-control" id="inputLName" placeholder="Last names: no spaces at start/end" onChange={this.lastChange} val={this.state.lastName} defaultValue={this.props.user.lastName} required={true} pattern="(([A-z]+\s){0,}([A-z]+))"/>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="inputAccountNum">Account Number</label>
-                        <input type="text" className="form-control" id="inputUsername" placeholder="Username" onChange={this.usernameChange} val={this.state.username} defaultValue={this.props.user.username}/>
+                        <label htmlFor="inputUsername">Username</label>
+                        <input type="text" className="form-control" id="inputUsername" placeholder="Username: only letters and numbers allowed" onChange={this.usernameChange} val={this.state.username} defaultValue={this.props.user.username} required={true} pattern="[A-z]+\d+"/>
                     </div>
                     <div className="form-group">
                         <button type="submit" className="btn btn-primary" reRenderParent={this.props.onClick}>Save</button>

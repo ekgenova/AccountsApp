@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
-@RequestMapping(path= Constants.USERS)
+@RequestMapping(value= Constants.USERS)
 public class DatabaseController{
 
     @Autowired
@@ -23,9 +25,15 @@ public class DatabaseController{
         return userRepository.findAll();
     }
 
+
     @DeleteMapping(path= Constants.DELETE_USER)
     public @ResponseBody String deleteUser (@RequestBody User user){
         userRepository.delete(user);
         return "Deleted user!";
+    }
+
+    @RequestMapping(value=Constants.SEARCH_ALL, method = RequestMethod.GET)
+    public List<User> getAll(@PathVariable String partial){
+        return userRepository.findByFirstName(partial);
     }
 }
